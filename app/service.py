@@ -1,4 +1,3 @@
-# app/service.py
 from typing import Any, Dict, List
 import httpx
 import asyncio
@@ -29,17 +28,17 @@ async def fetch_estaciones(params: Dict[str, Any]) -> List[Dict[str, Any]]:
         return data.get("data", []) if isinstance(data, dict) else data
 
 def station_has_store(est: Dict[str, Any]) -> bool:
-    # 1) bandera directa
+
     flag = est.get("tiene_tienda")
     if isinstance(flag, bool) and flag:
         return True
     if isinstance(flag, str) and flag.strip().lower() in {"true", "1", "sí", "si"}:
         return True
-    # 2) objeto tienda
+
     t = est.get("tienda") or est.get("Tienda")
     if isinstance(t, dict) and t:
         return True
-    # 3) servicios con nombre
+
     servicios = est.get("servicios") or []
     for s in servicios:
         nombre = str(s.get("nombre") or s.get("Nombre") or "").lower()
@@ -91,7 +90,7 @@ async def station_has_store_async_bulk(
 
     async with httpx.AsyncClient(timeout=timeout, headers=HEADERS) as client:
         async def check(e: Dict[str, Any]) -> bool:
-            # rápido:
+
             if station_has_store(e):
                 return True
             station_id = str(e.get("CodEs") or e.get("id") or "").strip()

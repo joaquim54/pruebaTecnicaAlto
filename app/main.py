@@ -45,7 +45,6 @@ def build_station_out(est: Dict[str, Any], dist_km: float) -> StationOut:
         longitud=float(latlon[1]),
         distancia_km=dist_km,
         precios=precios,
-        # usa chequeo rápido o el flag que marcamos al consultar detalle
         tiene_tienda=(station_has_store(est) or bool(est.get("_has_store"))),
         tienda=est.get("tienda") or est.get("Tienda") or None,
     )
@@ -65,7 +64,6 @@ async def search_stations(
     if not fam:
         raise HTTPException(status_code=400, detail="product inválido: use 93,95,97,diesel,kerosene")
 
-    # 1) Obtener estaciones
     if mock == 1:
         estaciones = [
             {
@@ -92,7 +90,6 @@ async def search_stations(
         params: Dict[str, Any] = {"latitud": lat, "longitud": lng}
         estaciones = await fetch_estaciones(params)
 
-    # 2) Calcular distancias y precios
     enriched: List[Dict[str, Any]] = []
     for e in estaciones:
         coords = extract_lat_lon(e)
@@ -105,7 +102,6 @@ async def search_stations(
     if not enriched:
         raise HTTPException(status_code=404, detail="Sin estaciones válidas con coordenadas")
 
-    # 3) Si piden tienda, primero intento rápido; si no hay, consulto detalle a las N más cercanas
     if store:
         quick = [x for x in enriched if station_has_store(x["raw"])]
         if not quick:
@@ -127,7 +123,6 @@ async def search_stations(
         if not enriched:
             raise HTTPException(status_code=404, detail="No hay estaciones con tienda en el área")
 
-    # 4) Si piden cheapest, filtrar por menor precio dentro del set actual
     subset = enriched
     if cheapest:
         precios_validos = [x["price"] for x in enriched if x["price"] is not None]
@@ -136,10 +131,8 @@ async def search_stations(
         min_price = min(precios_validos)
         subset = [x for x in enriched if x["price"] is not None and x["price"] == min_price]
 
-    # 5) Devolver la más cercana del subset (siempre se define 'best')
     best = min(subset, key=lambda x: x["dist"])
 
-    # 6) Si pidieron tienda y el objeto no viene, completar con detalle/fallback
     if store:
         raw = best["raw"]
         if not (raw.get("tienda") or raw.get("Tienda")):
@@ -148,13 +141,11 @@ async def search_stations(
                 try:
                     det = await fetch_estacion_detalle(station_id)
 
-                    # intento directo
                     tienda_obj = det.get("tienda") or det.get("Tienda")
 
-                    # fallback por servicios
                     if not tienda_obj:
                         servicios = det.get("servicios") or det.get("Servicios") or []
-                        if isinstance(servicios, dict):  # {"CodSer": [...]}
+                        if isinstance(servicios, dict):  
                             servicios = servicios.get("CodSer") or []
 
                         names = []
@@ -181,6 +172,6 @@ async def search_stations(
                         raw["tienda"] = tienda_obj
 
                 except Exception:
-                    pass  # mantenemos tiene_tienda=True pero tienda=None
+                    pass  
 
     return {"success": True, "data": build_station_out(best["raw"], best["dist"]).dict()}

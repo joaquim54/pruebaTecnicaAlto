@@ -36,7 +36,6 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
     return R * c
 
-# helper de lectura tolerante a claves en mayúsc/minúsc
 def get_first(est: Dict[str, Any], *keys, default=None):
     for k in keys:
         if k in est and est[k] not in (None, "", "null"):
@@ -48,7 +47,6 @@ def parse_price_for_product(est: Dict[str, Any], product: str) -> Optional[float
     if not fam:
         return None
 
-    # 1) Formato clásico "Prices"
     target_names = {
         "93": {"gasolina 93", "93"},
         "95": {"gasolina 95", "95"},
@@ -64,7 +62,6 @@ def parse_price_for_product(est: Dict[str, Any], product: str) -> Optional[float
             if val is not None:
                 return val
 
-    # 2) Formato nuevo "combustibles"
     combs = est.get("combustibles") or []
     alias = {
         "diesel": {"di", "diesel", "d", "petroleo di", "petróleo diésel"},
