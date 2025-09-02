@@ -1,114 +1,112 @@
-Prueba Técnica – API de Búsqueda de Estaciones de Combustible
+# Prueba Técnica – API de Búsqueda de Estaciones de Combustible
 
-API en Python + FastAPI que consulta la API pública de Bencina en Línea (endpoint descubierto por inspección) y resuelve 4 casos de búsqueda:
+API en **Python + FastAPI** que consulta la API pública de **Bencina en Línea** (endpoint descubierto por inspección) y resuelve 4 casos de búsqueda:
 
-Estación más cercana por producto
+1) **Estación más cercana** por producto  
+2) **Más cercana entre las de menor precio** por producto  
+3) **Más cercana con tienda** por producto  
+4) **Más cercana con tienda y menor precio** por producto
 
-Más cercana entre las de menor precio por producto
+La API normaliza datos heterogéneos de la fuente (nombres de productos, claves con mayúsculas/minúsculas, etc.) y, cuando es necesario, consulta el **detalle de estación** para confirmar si tiene tienda.
 
-Más cercana con tienda por producto
+---
 
-Más cercana con tienda y menor precio por producto
+## Requisitos
 
-La API normaliza datos heterogéneos de la fuente (nombres de productos, claves con mayúsculas/minúsculas, etc.) y, cuando es necesario, consulta el detalle de estación para confirmar si tiene tienda.
+- **Python 3.11+**
+- **pip**
+- (Opcional) **Git** para clonar el repo
 
-Índice
+---
 
-Requisitos
+## Instalación y ejecución
 
-Instalación y ejecución
-
-Uso
-
-Parámetros
-
-Ejemplo de respuesta
-
-Estructura del proyecto
-
-Manejo de errores
-
-Notas técnicas
-
-Tests
-
-Entrega
-
-Requisitos
-
-Python 3.11+
-
-pip
-
-(Opcional) Git para clonar el repo
-
-Instalación y ejecución
-1) Clonar y entrar al proyecto
+### 1) Clonar y entrar al proyecto
+```bash
 git clone https://github.com/joaquim54/pruebaTecnicaAlto.git
 cd pruebaTecnicaAlto
-
 2) Crear y activar entorno virtual
+Windows (PowerShell):
 
-Windows (PowerShell)
-
+powershell
+Copiar código
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+Windows (CMD):
 
-
-Windows (CMD)
-
+cmd
+Copiar código
 python -m venv .venv
 .venv\Scripts\activate.bat
+macOS / Linux:
 
-
-macOS / Linux
-
+bash
+Copiar código
 python3 -m venv .venv
 source .venv/bin/activate
-
-
 Para salir del venv: deactivate
 
 3) Instalar dependencias
+bash
+Copiar código
 pip install --upgrade pip
 pip install -r requirements.txt
-
 4) Ejecutar en modo desarrollo
+bash
+Copiar código
 uvicorn app.main:app --reload --port 8000
-
-
 Swagger UI: http://127.0.0.1:8000/docs
 
 OpenAPI JSON: http://127.0.0.1:8000/openapi.json
 
-Uso
-
-Endpoint principal
-
-GET /api/stations/search
-
-Ejemplos rápidos
-
-1. Más cercana (producto 95)
-
-curl "http://127.0.0.1:8000/api/stations/search?lat=-33.6181&lng=-70.74&product=95"
-
-
-2. Más cercana con tienda
-
-curl "http://127.0.0.1:8000/api/stations/search?lat=-33.6181&lng=-70.74&product=95&store=true"
-
-
-3. Más cercana entre las de menor precio
-
-curl "http://127.0.0.1:8000/api/stations/search?lat=-33.6181&lng=-70.74&product=95&cheapest=true"
-
-
-4. Más cercana con tienda y menor precio
-
-curl "http://127.0.0.1:8000/api/stations/search?lat=-33.6181&lng=-70.74&product=95&store=true&cheapest=true"
-
-
-Modo mock (sin Internet)
-
+Uso rápido
+Más cercana por producto
+bash
+Copiar código
+curl "http://127.0.0.1:8000/api/stations/search?lat=-33.45&lng=-70.66&product=95"
+Más cercana ENTRE las de menor precio
+bash
+Copiar código
+curl "http://127.0.0.1:8000/api/stations/search?lat=-33.45&lng=-70.66&product=95&cheapest=true"
+Más cercana con tienda
+bash
+Copiar código
+curl "http://127.0.0.1:8000/api/stations/search?lat=-33.45&lng=-70.66&product=95&store=true"
+Más cercana con tienda y menor precio
+bash
+Copiar código
+curl "http://127.0.0.1:8000/api/stations/search?lat=-33.45&lng=-70.66&product=95&store=true&cheapest=true"
+Modo mock (sin depender de Internet)
+bash
+Copiar código
 curl "http://127.0.0.1:8000/api/stations/search?lat=-33.6&lng=-70.7&product=95&mock=1"
+
+
+Ejemplo de respuesta
+json
+Copiar código
+{
+  "success": true,
+  "data": {
+    "id": "2069",
+    "compania": "A4",
+    "direccion": "Panamericana Sur Km. 21",
+    "comuna": "San Bernardo",
+    "region": "Metropolitana de Santiago",
+    "latitud": -33.614949,
+    "longitud": -70.716499,
+    "distancia_km": 2.21,
+    "precios": {
+      "93": null,
+      "95": null,
+      "97": null,
+      "diesel": 1011.0,
+      "kerosene": null
+    },
+    "tiene_tienda": true,
+    "tienda": {
+      "nombre": "Tienda de conveniencia",
+      "fuente": "servicios"
+    }
+  }
+}
