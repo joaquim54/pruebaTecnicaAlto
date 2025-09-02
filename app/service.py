@@ -82,10 +82,7 @@ async def station_has_store_async_bulk(
     concurrency: int = 8,
     timeout: float = 15.0,
 ) -> List[bool]:
-    """
-    Revisa en paralelo (con límite de concurrencia) si las estaciones tienen tienda,
-    consultando el endpoint de detalle solo cuando el chequeo rápido no basta.
-    """
+
     sem = asyncio.Semaphore(concurrency)
 
     async with httpx.AsyncClient(timeout=timeout, headers=HEADERS) as client:
