@@ -7,17 +7,14 @@ API en **Python + FastAPI** que consulta la API pública de **Bencina en Línea*
 3) **Más cercana con tienda** por producto  
 4) **Más cercana con tienda y menor precio** por producto
 
-La API normaliza datos heterogéneos de la fuente (nombres de productos, claves con mayúsculas/minúsculas, etc.) y, cuando es necesario, consulta el **detalle de estación** para confirmar si tiene tienda.
 
----
 
 ## Requisitos
 
 - **Python 3.11+**
 - **pip**
-- (Opcional) **Git** para clonar el repo
 
----
+
 
 ## Instalación y ejecución
 
